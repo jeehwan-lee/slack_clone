@@ -8,6 +8,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import {useDispatch, useSelector} from 'react-redux';
 import { clearUser, setUser } from './store/userReducer';
 import Main from './pages/Main';
+import { CircularProgress, Stack } from '@mui/material';
 
 function App() {
 
@@ -25,11 +26,19 @@ function App() {
     return () => unsubscribe();
   }, [dispatch]);
 
+  if(isLoading) {
+    return (
+      <Stack alignItems="center" justifyContent="center" height="100vh">
+        <CircularProgress color='secondary' size={150} />
+      </Stack>
+    )
+  }
+
   return (
     <>
       <Routes>
-        <Route path="/" element={<Main/>}></Route>
-        <Route path="/login" element={<Login/>}></Route>
+        <Route path="/" element={currentUser? <Main/>:<Navigate to="/login"/>}></Route>
+        <Route path="/login"  element={currentUser ? <Navigate to="/" /> : <Login/>}></Route>
         <Route path="/join" element={currentUser ? <Navigate to="/" /> : <Join/>}></Route>
       </Routes>
     </>

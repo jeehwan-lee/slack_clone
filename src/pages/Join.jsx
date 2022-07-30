@@ -1,7 +1,7 @@
 import { Alert, Avatar, Grid, TextField, Typography } from "@mui/material";
 import { Container, Box } from "@mui/system";
 import TagIcon from "@mui/icons-material/Tag";
-import React from "react";
+import React, { useCallback } from "react";
 import { LoadingButton } from "@mui/lab";
 import {Link} from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -29,28 +29,7 @@ function Join() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const name = data.get("name");
-    const email = data.get("email");
-    const password = data.get("password");
-    const confirmPassword = data.get("confirmPassword");
-
-    if(!name || !email || !password || !confirmPassword) {
-      setError("모든 항목을 입력해주세요.");
-      return;
-    }
-
-    if(!IsPasswordValid(password, confirmPassword)) {
-      setError("비밀번호를 확인하세요.");
-      return;
-    }
-
-    postUserData(name, email, password);
-  }
-
-  const postUserData = async (name, email, password) => {
+  const postUserData = useCallback(async (name, email, password) => {
     setLoading(true);
 
     try {
@@ -69,7 +48,29 @@ function Join() {
         setError(e.message);
         setLoading(false);
     }
-  }
+  },[dispatch]);
+
+  const handleSubmit = useCallback((event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const name = data.get("name");
+    const email = data.get("email");
+    const password = data.get("password");
+    const confirmPassword = data.get("confirmPassword");
+
+    if(!name || !email || !password || !confirmPassword) {
+      setError("모든 항목을 입력해주세요.");
+      return;
+    }
+
+    if(!IsPasswordValid(password, confirmPassword)) {
+      setError("비밀번호를 확인하세요.");
+      return;
+    }
+
+    postUserData(name, email, password);
+  },[postUserData])
+
 
   useEffect(() => {
     if(!error) return;
