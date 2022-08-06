@@ -2,6 +2,7 @@ import { Grid, List, Toolbar, Paper, Divider } from '@mui/material'
 import { child, get, getDatabase, onChildAdded, query, ref, orderByChild, startAt } from 'firebase/database';
 import React from 'react'
 import { useEffect } from 'react';
+import { useRef } from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux'
 import ChatHeader from './ChatHeader'
@@ -12,6 +13,7 @@ function Chat() {
 
     const [messages, setMessages] = useState([]);
     const {channel, user} = useSelector((state) => state);
+    const messageEndRef = useRef();
 
     useEffect(()=> {
         if(!channel.currentChannel) return;
@@ -25,9 +27,10 @@ function Chat() {
         }
     }, [channel.currentChannel]);
 
-    useEffect(() => {
+    useEffect(()=> {
         if(!channel.currentChannel) return;
         const sorted = query(ref(getDatabase(), "messages/"+channel.currentChannel.id), orderByChild("timestamp"));
+        console.log("Ggg")
         const unsubscribe = onChildAdded(query(sorted, startAt(Date.now())), (snapShot)=>setMessages((oldMessages)=>[...oldMessages, snapShot.val()]));
         
         return ()=> {
@@ -35,6 +38,15 @@ function Chat() {
         }
     
     }, [channel.currentChannel]);
+
+    useEffect(() => {
+        const setTimeoutId = setTimeout(() => {
+            messageEndRef.current.scrollIntoView({behavior:"smooth"});
+        }, 2000)
+        return () => {
+            clearTimeout(setTimeoutId);
+        }
+    }, [messages.length])
 
   return (
     <>
@@ -45,6 +57,7 @@ function Chat() {
                 {messages.map(message => (
                     <ChatMessage key={message.timestamp} message={message} user={user} />
                 ))}
+                <div ref={messageEndRef}></div>
             </List>
             <Divider/>
             <ChatInput/>
