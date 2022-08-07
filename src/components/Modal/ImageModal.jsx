@@ -5,7 +5,6 @@ import { v4 as uuidv4} from 'uuid';
 import "../../firebase";
 import {getDownloadURL, getStorage, ref as refStorage, uploadBytesResumable,} from "firebase/storage";
 import {getDatabase, push, ref, serverTimestamp, set,} from 'firebase/database';
-import { async } from '@firebase/util';
 import { useSelector } from 'react-redux';
 import { useCallback } from 'react';
 
@@ -17,7 +16,7 @@ function ImageModal({open, handleClose, setPercent, setUploading}) {
 
     const onChangeAddFile = (e) => {
         const addFile = e.target.files[0];
-        if(!file) setFile(addFile);
+        if(addFile) setFile(addFile);
     }
 
     const createImageMessage = useCallback((fileUrl) => ({
@@ -34,8 +33,12 @@ function ImageModal({open, handleClose, setPercent, setUploading}) {
         
         setUploading(true);
 
+        console.log(file);
+
         const filePath = `chat/${uuidv4()}.${file.name.split(".").pop()}`
         const uploadTask = uploadBytesResumable(refStorage(getStorage(), filePath),file);
+
+        console.log("good");
         const unsubscribe = uploadTask.on("state_changed", (snap) => {
             const percentUploaded = Math.round((snap.bytesTransferred / snap.totalBytes)*100);
             setPercent(percentUploaded);

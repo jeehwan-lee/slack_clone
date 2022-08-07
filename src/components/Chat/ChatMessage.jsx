@@ -5,9 +5,7 @@ import React from 'react'
 const relativeTime = require("dayjs/plugin/relativeTime");
 dayjs.extend(relativeTime);
 
-const IsImage = (message) => {
-    message.hasOwnProperty("image");
-}
+const IsImage = (message) => message.hasOwnProperty("image");
 
 function ChatMessage({message, user}) {
   return (
